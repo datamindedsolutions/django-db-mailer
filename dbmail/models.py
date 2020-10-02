@@ -193,7 +193,7 @@ class MailTemplate(models.Model):
     num_of_retries = models.PositiveIntegerField(
         _('Number of retries'), default=1)
     expiry = models.PositiveIntegerField(
-        _('Time in (s) before task expires'), default=120)
+        _('Time in (s) before task expires'), default=300)
     priority = models.SmallIntegerField(
         _('Priority'), default=DEFAULT_PRIORITY, choices=PRIORITY_STEPS)
     is_html = models.BooleanField(
