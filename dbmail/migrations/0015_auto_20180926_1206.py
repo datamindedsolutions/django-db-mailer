@@ -8,7 +8,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dbmail', '0014_auto_20170801_1206'),
+        ('dbmail', '0014_auto_20170307_0027'),
     ]
 
     operations = [
@@ -76,6 +76,11 @@ class Migration(migrations.Migration):
             model_name='mailtemplate',
             name='interval',
             field=models.PositiveIntegerField(help_text='\n            Specify interval to send messages after sometime.\n            Interval must be set in the seconds.\n            ', verbose_name='Send interval', default=0),
+        ),
+        migrations.AddField(
+            model_name='mailtemplate',
+            name='expiry',
+            field=models.PositiveIntegerField(default=300, verbose_name='Time in (s) before task expires'),
         ),
     ]
 

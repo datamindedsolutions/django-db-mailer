@@ -3,7 +3,11 @@
 from __future__ import unicode_literals
 
 import ckeditor.fields
+from dbmail.defaults import SORTED_BACKEND_CHOICES, BACKENDS_MODEL_CHOICES, BACKEND
 from django.db import migrations, models
+import django.db.models.deletion
+
+from dbmail.models import SubscriptionDataField
 
 
 class Migration(migrations.Migration):
@@ -67,5 +71,88 @@ class Migration(migrations.Migration):
             model_name='signal',
             name='signal',
             field=models.CharField(choices=[('pre_save', 'pre_save'), ('post_save', 'post_save'), ('pre_delete', 'pre_delete'), ('post_delete', 'post_delete'), ('m2m_changed', 'm2m_changed')], default='post_save', max_length=15, verbose_name='Signal'),
+        ),
+        migrations.AlterField(
+            model_name='maillog',
+            name='backend',
+            field=models.CharField(choices=SORTED_BACKEND_CHOICES, db_index=True, default=b'mail', editable=False,
+                                   max_length=25, verbose_name='Backend'),
+        ),
+        migrations.AlterField(
+            model_name='mailsubscription',
+            name='address',
+            field=models.CharField(db_index=True, help_text='Must be phone number/email/token', max_length=350,
+                                   verbose_name='Address'),
+        ),
+        migrations.AlterField(
+            model_name='mailsubscription',
+            name='backend',
+            field=models.CharField(choices=BACKENDS_MODEL_CHOICES, default=BACKEND.get('mail'), max_length=50,
+                                   verbose_name='Backend'),
+        ),
+        migrations.AlterField(
+            model_name='mailsubscription',
+            name='data',
+            field=SubscriptionDataField(blank=True, default=dict, null=True),
+        ),
+        migrations.AlterField(
+            model_name='mailsubscription',
+            name='title',
+            field=models.CharField(blank=True, max_length=350, null=True),
+        ),
+        migrations.AlterField(
+            model_name='mailtemplate',
+            name='category',
+            field=models.ForeignKey(blank=True, default=2, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to='dbmail.MailCategory', verbose_name='Category'),
+        ),
+        migrations.AlterField(
+            model_name='mailtemplate',
+            name='from_email',
+            field=models.ForeignKey(blank=True, default=2, help_text='If not specified, then used default.', null=True,
+                                    on_delete=django.db.models.deletion.SET_NULL, to='dbmail.MailFromEmail',
+                                    verbose_name='Message from'),
+        ),
+        # ----------------------------------------------------------------------------------------------------
+        migrations.AlterField(
+            model_name='maillog',
+            name='backend',
+            field=models.CharField(choices=SORTED_BACKEND_CHOICES, db_index=True, default=b'mail', editable=False,
+                                   max_length=25, verbose_name='Backend'),
+        ),
+        migrations.AlterField(
+            model_name='mailsubscription',
+            name='address',
+            field=models.CharField(db_index=True, help_text='Must be phone number/email/token', max_length=350,
+                                   verbose_name='Address'),
+        ),
+        migrations.AlterField(
+            model_name='mailsubscription',
+            name='backend',
+            field=models.CharField(choices=BACKENDS_MODEL_CHOICES, default=BACKEND.get('mail'), max_length=50,
+                                   verbose_name='Backend'),
+        ),
+        migrations.AlterField(
+            model_name='mailsubscription',
+            name='data',
+            field=SubscriptionDataField(blank=True, default=dict, null=True),
+        ),
+        migrations.AlterField(
+            model_name='mailsubscription',
+            name='title',
+            field=models.CharField(blank=True, max_length=350, null=True),
+        ),
+        migrations.AlterField(
+            model_name='mailtemplate',
+            name='category',
+            field=models.ForeignKey(blank=True, default=2, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to='dbmail.MailCategory', verbose_name='Category'),
+        ),
+        migrations.AlterField(
+            model_name='mailtemplate',
+            name='from_email',
+            field=models.ForeignKey(blank=True, default=2, help_text='If not specified, then used default.', null=True,
+                                    on_delete=django.db.models.deletion.SET_NULL, to='dbmail.MailFromEmail',
+                                    verbose_name='Message from'),
         ),
     ]
