@@ -1,40 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
-
 from dbmail.models import (
-    MailTemplate, MailTemplateLocalizedContent, MailBcc, MailFromEmail,
+    MailTemplate, MailBcc, MailFromEmail,
     MailFile, MailFromEmailCredential,
 )
+from .base import BaseTestCase
 
 
-class TemplateTestCase(TestCase):
-    def __create_template(self):
-        return MailTemplate.objects.create(
-            name="Site welcome template",
-            subject="Welcome",
-            message="Welcome to our site. We are glad to see you.",
-            slug="welcome",
-            is_html=False,
-            id=1,
-        )
+class TemplateTestCase(BaseTestCase):
 
-    def __retrieve_named_template_and_check_num_queries(self, num):
-        with self.assertNumQueries(num):
-            template = MailTemplate.get_template("welcome")
-            self.assertEqual(template.pk, 1)
-            return template
-
-    ###########################################################################
     def test_retrieve_named_template(self):
         """ create template and check queries """
-        self.__create_template()
-        self.__retrieve_named_template_and_check_num_queries(3)
+        self._create_template()
+        self._retrieve_named_template_and_check_num_queries(3)
 
     def test_retrieve_named_template_cached(self):
         """ check num of queries for cached template """
         self.test_retrieve_named_template()
-        self.__retrieve_named_template_and_check_num_queries(0)
+        self._retrieve_named_template_and_check_num_queries(0)
 
     def test_retrieve_named_template_with_cache_invalidation(self):
         """ invalidate cached template """
@@ -46,27 +29,27 @@ class TemplateTestCase(TestCase):
         template.subject = "Hello"
         template.save()
 
-        self.__retrieve_named_template_and_check_num_queries(3)
+        self._retrieve_named_template_and_check_num_queries(3)
         self.assertEquals(template.subject, "Hello")
 
     def test_retrieve_named_template_with_cache_invalidation_cache(self):
         """ check num of queries for cached template after invalidation """
         self.test_retrieve_named_template_with_cache_invalidation()
-        template = self.__retrieve_named_template_and_check_num_queries(0)
+        template = self._retrieve_named_template_and_check_num_queries(0)
         self.assertEquals(template.subject, "Hello")
 
     ###########################################################################
     def test_retrieve_bcc(self):
         """ create template and check bcc """
-        self.__create_template()
+        self._create_template()
 
-        template = self.__retrieve_named_template_and_check_num_queries(3)
+        template = self._retrieve_named_template_and_check_num_queries(3)
         self.assertEquals(template.bcc_list, [])
 
     def test_retrieve_bcc_cached(self):
         """ create template and bcc cache """
         self.test_retrieve_bcc()
-        self.__retrieve_named_template_and_check_num_queries(0)
+        self._retrieve_named_template_and_check_num_queries(0)
 
     def test_retrieve_bcc_cached_invalidation(self):
         """ invalidate cached bcc and add new bcc email """
@@ -100,20 +83,20 @@ class TemplateTestCase(TestCase):
             template = MailTemplate.get_template("welcome")
             self.assertEquals(template.bcc_list, [])
 
-        self.__retrieve_named_template_and_check_num_queries(0)
+        self._retrieve_named_template_and_check_num_queries(0)
 
     ###########################################################################
     def test_retrieve_from(self):
         """ create template and check default email from """
-        self.__create_template()
+        self._create_template()
 
-        template = self.__retrieve_named_template_and_check_num_queries(3)
+        template = self._retrieve_named_template_and_check_num_queries(3)
         self.assertEquals(template.from_email, None)
 
     def test_retrieve_from_cached(self):
         """ create template and check email from cache """
         self.test_retrieve_from()
-        self.__retrieve_named_template_and_check_num_queries(0)
+        self._retrieve_named_template_and_check_num_queries(0)
 
     def test_retrieve_from_cached_invalidation(self):
         """ invalidate cached from and add new email from """
@@ -150,18 +133,18 @@ class TemplateTestCase(TestCase):
             template = MailTemplate.get_template("welcome")
             self.assertEquals(template.from_email, None)
 
-        self.__retrieve_named_template_and_check_num_queries(0)
+        self._retrieve_named_template_and_check_num_queries(0)
 
     ###########################################################################
     def test_retrieve_file(self):
-        self.__create_template()
+        self._create_template()
 
-        template = self.__retrieve_named_template_and_check_num_queries(3)
+        template = self._retrieve_named_template_and_check_num_queries(3)
         self.assertEquals(template.files_list, [])
 
     def test_retrieve_file_cached(self):
         self.test_retrieve_file()
-        self.__retrieve_named_template_and_check_num_queries(0)
+        self._retrieve_named_template_and_check_num_queries(0)
 
     def test_retrieve_file_cached_invalidation(self):
         self.test_retrieve_file_cached()
@@ -191,18 +174,18 @@ class TemplateTestCase(TestCase):
             template = MailTemplate.get_template("welcome")
             self.assertEquals(template.files_list, [])
 
-        self.__retrieve_named_template_and_check_num_queries(0)
+        self._retrieve_named_template_and_check_num_queries(0)
 
     ###########################################################################
     def test_retrieve_auth(self):
-        self.__create_template()
+        self._create_template()
 
-        template = self.__retrieve_named_template_and_check_num_queries(3)
+        template = self._retrieve_named_template_and_check_num_queries(3)
         self.assertEquals(template.auth_credentials, None)
 
     def test_retrieve_auth_cached(self):
         self.test_retrieve_auth()
-        self.__retrieve_named_template_and_check_num_queries(0)
+        self._retrieve_named_template_and_check_num_queries(0)
 
     def test_retrieve_auth_cached_invalidation(self):
         self.test_retrieve_auth_cached()
@@ -263,19 +246,11 @@ class TemplateTestCase(TestCase):
             self.assertEquals(template.from_email, None)
 
 
-class LocalizedTemplateTestCase(TemplateTestCase):
-    def __create_localized_template(self):
-        template = self._TemplateTestCase__create_template()
-        return MailTemplateLocalizedContent.objects.create(
-            template=template,
-            lang="es",
-            subject="Bienvenido",
-            message="Bienvenido a nuestro sitio. Nos alegra verte.",
-        )
+class LocalizedTemplateTestCase(BaseTestCase):
 
     def test_retrieve_localized_template(self):
         """ create template + localized template, and checks queries """
-        self.__create_localized_template()
+        self._create_localized_template()
 
         with self.assertNumQueries(4):
             template = MailTemplate.get_template("welcome", lang="es")
@@ -284,7 +259,7 @@ class LocalizedTemplateTestCase(TemplateTestCase):
 
     def test_retrieve_localized_template_from_cache(self):
         """ create template + localized template, and checks queries """
-        self.__create_localized_template()
+        self._create_localized_template()
 
         with self.assertNumQueries(4):
             template = MailTemplate.get_template("welcome", lang="es")
@@ -296,3 +271,12 @@ class LocalizedTemplateTestCase(TemplateTestCase):
             template = MailTemplate.get_template("welcome", lang="es")
             self.assertEquals(template.subject, "Bienvenido")
             self.assertEquals(template.message, "Bienvenido a nuestro sitio. Nos alegra verte.")
+
+    def test_template_does_not_exists(self):
+        """ checks that fails gracefully when localized content does not exists """
+        self._create_template()
+        self.assertIsNotNone(MailTemplate.get_template("welcome"))
+        # this should log an error and return the default template
+        template = MailTemplate.get_template("welcome", lang="es")
+        self.assertEquals(template.subject, "Welcome")
+        self.assertEquals(template.message, "Welcome to our site. We are glad to see you.")

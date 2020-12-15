@@ -45,7 +45,8 @@ class Sender(object):
         self._provider = kwargs.pop('provider', self.provider)
         self._signals_kw = kwargs.pop('signals_kwargs', {})
 
-        self._template = self._get_template()
+        lang = kwargs.pop('lang', None)
+        self._template = self._get_template(lang=lang)
         self._context = self._get_context(args)
 
         self._subject = self._get_subject()
@@ -83,8 +84,8 @@ class Sender(object):
                 **self._template.auth_credentials)
         return self._kwargs.pop('connection', None)
 
-    def _get_template(self):
-        return MailTemplate.get_template(slug=self._slug)
+    def _get_template(self, lang=None):
+        return MailTemplate.get_template(slug=self._slug, lang=lang)
 
     def _get_context(self, context_list):
         try:
