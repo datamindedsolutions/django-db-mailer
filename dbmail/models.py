@@ -256,7 +256,7 @@ class MailTemplate(models.Model):
         obj = cache.get(slug, version=1)
         if obj is not None and obj.__dict__.get('lang', None) == lang:
             return obj
-        elif obj is None:
+        elif obj is None or obj.__dict__.get('lang') != lang:
             obj = cls.objects.select_related('from_email', 'base').get(slug=slug)
         bcc_list = [o.email for o in obj.bcc_email.filter(is_active=1)]
         files_list = list(obj.files.all())
@@ -304,16 +304,6 @@ class MailTemplateLocalizedContent(models.Model):
     subject = models.CharField(_('Subject'), max_length=100)
     message = HTMLField(_('Body'))
 
-    # def _clean_cache(self):
-        # MailTemplate.clean_cache(pk=self.template.pk)
-
-    # def save(self, *args, **kwargs):
-        # super(MailFile, self).save(*args, **kwargs)
-        # self._clean_cache()
-
-    # def delete(self, using=None):
-        # self._clean_cache()
-        # super(MailFile, self).delete(using)
     @staticmethod
     def localize_template(mail_template, lang):
         try:
@@ -326,13 +316,24 @@ class MailTemplateLocalizedContent(models.Model):
         mail_template.__dict__['message'] = localized_content.message
         mail_template.__dict__['lang'] = localized_content.lang
 
+    def _clean_cache(self):
+        MailTemplate.clean_cache(pk=self.template.pk)
+
+    def save(self, *args, **kwargs):
+        super(MailTemplateLocalizedContent, self).save(*args, **kwargs)
+        self._clean_cache()
+
+    def delete(self, using=None):
+        self._clean_cache()
+        super(MailTemplateLocalizedContent, self).delete(using)
+
     def __str__(self):
         return self.lang
 
     class Meta:
         unique_together = ['template', 'lang']
-        verbose_name = _('Localized mail template')
-        verbose_name_plural = _('Localized mail templates')
+        verbose_name = _('Mail Template Localized Content')
+        verbose_name_plural = _('Mail Templates Localized Contents')
 
 
 @python_2_unicode_compatible

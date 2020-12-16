@@ -16,9 +16,10 @@ from django.contrib import messages
 from django.contrib import admin
 
 from dbmail.models import (
-    MailCategory, MailTemplate, MailLog, MailLogEmail, Signal, ApiKey, MailBcc,
-    MailGroup, MailGroupEmail, MailFile, MailFromEmail, MailBaseTemplate,
-    MailFromEmailCredential, MailLogTrack, MailSubscription, MailLogException
+    MailCategory, MailTemplate, MailTemplateLocalizedContent, MailLog,
+    MailLogEmail, Signal, ApiKey, MailBcc, MailGroup, MailGroupEmail,
+    MailFile, MailFromEmail, MailBaseTemplate, MailFromEmailCredential,
+    MailLogTrack, MailSubscription, MailLogException
 )
 from dbmail import app_installed
 from dbmail import get_model
@@ -370,6 +371,10 @@ class MailLogExceptionAdmin(admin.ModelAdmin):
             return False
         return True
 
+class MailTemplateLocalizedContentAdmin(admin.ModelAdmin):
+    model = MailTemplateLocalizedContent
+    list_filter = ('is_outdated',)
+
 
 def admin_register(model):
     model_name = model.__name__
@@ -389,6 +394,7 @@ admin_register(MailFromEmail)
 admin_register(MailLogTrack)
 admin_register(MailCategory)
 admin_register(MailTemplate)
+admin_register(MailTemplateLocalizedContent)
 admin_register(MailGroup)
 admin_register(MailLog)
 admin_register(MailBcc)

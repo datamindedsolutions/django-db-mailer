@@ -23,8 +23,8 @@ class Migration(migrations.Migration):
                 ('template', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='localizations', to='dbmail.MailTemplate', verbose_name='Template')),
             ],
             options={
-                'verbose_name': 'Localized mail template',
-                'verbose_name_plural': 'Localized mail templates',
+                'verbose_name': 'Mail Template Localized Content',
+                'verbose_name_plural': 'Mail Templates Localized Contents',
                 'unique_together': {('template', 'lang')},
             },
         ),

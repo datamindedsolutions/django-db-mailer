@@ -21,7 +21,10 @@ setup(
     include_package_data=True,
     install_requires=[
         'setuptools',
-        'djangorestframework',
+        'Django>1.9,<=2.1',
+        'twilio==6.19.1',
+        'django-push-notifications==2.0.0',
+        'djangorestframework==3.9.3',
     ],
     zip_safe=False,
     classifiers=[
