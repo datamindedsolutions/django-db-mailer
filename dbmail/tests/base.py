@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.core.cache import cache
 from django.test import TestCase
 
 from dbmail.models import (
@@ -8,6 +9,9 @@ from dbmail.models import (
 
 
 class BaseTestCase(TestCase):
+
+    def tearDown(self):
+        cache.clear()
 
     def _create_template(self):
         return MailTemplate.objects.create(

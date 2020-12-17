@@ -251,25 +251,41 @@ class MailTemplate(models.Model):
         if self.is_html:
             self.message = premailer_transform(self.message)
 
+    @staticmethod
+    def localize_template(mail_template, lang):
+        try:
+            localized_content = mail_template.localizations.get(lang=lang)
+        except MailTemplateLocalizedContent.DoesNotExist:
+            logger.error('Localized template not found for lang={}, slug={}'.format(lang, mail_template.slug))
+            return
+
+        setattr(mail_template, 'subject', localized_content.subject)
+        setattr(mail_template, 'message', localized_content.message)
+        setattr(mail_template, 'lang', localized_content.lang)
+
     @classmethod
     def get_template(cls, slug, lang=None):
-        obj = cache.get(slug, version=1)
-        if obj is not None and obj.__dict__.get('lang', None) == lang:
+        cache_key = slug
+        if lang:
+            cache_key = '{}-{}'.format(slug, lang)
+
+        obj = cache.get(cache_key, version=1)
+        if obj:
             return obj
-        elif obj is None or obj.__dict__.get('lang') != lang:
-            obj = cls.objects.select_related('from_email', 'base').get(slug=slug)
+
+        obj = cls.objects.select_related('from_email', 'base').get(slug=slug)
         bcc_list = [o.email for o in obj.bcc_email.filter(is_active=1)]
         files_list = list(obj.files.all())
         auth_credentials = obj.from_email and obj.from_email.get_auth()
 
-        obj.__dict__['bcc_list'] = bcc_list
-        obj.__dict__['files_list'] = files_list
-        obj.__dict__['auth_credentials'] = auth_credentials
+        setattr(obj, 'bcc_list', bcc_list)
+        setattr(obj, 'files_list', files_list)
+        setattr(obj, 'auth_credentials', auth_credentials)
 
-        if lang is not None:
-            MailTemplateLocalizedContent.localize_template(obj, lang)
+        if lang:
+            cls.localize_template(obj, lang)
 
-        cache.set(slug, obj, timeout=CACHE_TTL, version=1)
+        cache.set(cache_key, obj, timeout=CACHE_TTL, version=1)
 
         return obj
 
@@ -299,25 +315,16 @@ class MailTemplateLocalizedContent(models.Model):
         on_delete=models.CASCADE)
     lang = models.CharField(_('Language'), max_length=3,
                             choices=LANG_CHOICES)
-    is_outdated = models.BooleanField(default=False)
+    is_outdated = models.BooleanField(
+        help_text=_('Localized content has not been updated since linked MailTemplate content was updated'),
+        default=False
+    )
     # localized content fields
     subject = models.CharField(_('Subject'), max_length=100)
     message = HTMLField(_('Body'))
 
-    @staticmethod
-    def localize_template(mail_template, lang):
-        try:
-            localized_content = mail_template.localizations.get(lang=lang)
-        except MailTemplateLocalizedContent.DoesNotExist:
-            logger.error('Localized template not found for lang={}, slug={}'.format(lang, mail_template.slug))
-            return
-
-        mail_template.__dict__['subject'] = localized_content.subject
-        mail_template.__dict__['message'] = localized_content.message
-        mail_template.__dict__['lang'] = localized_content.lang
-
     def _clean_cache(self):
-        MailTemplate.clean_cache(pk=self.template.pk)
+        cache.delete('{}-{}'.format(self.template.slug, self.lang), version=1)
 
     def save(self, *args, **kwargs):
         super(MailTemplateLocalizedContent, self).save(*args, **kwargs)

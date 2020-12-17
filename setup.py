@@ -22,9 +22,9 @@ setup(
     install_requires=[
         'setuptools',
         'Django>1.9,<=2.1',
-        'twilio==6.19.1',
+        'twilio==6.31.1',
         'django-push-notifications==2.0.0',
-        'djangorestframework==3.9.3',
+        'djangorestframework>=3.6.3,<=3.9.3',
     ],
     zip_safe=False,
     classifiers=[
