@@ -51,6 +51,7 @@ ALLOWED_MODELS_ON_ADMIN = get_settings('DB_MAILER_ALLOWED_MODELS_ON_ADMIN', [
     'MailFromEmail',
     'MailCategory',
     'MailTemplate',
+    'MailTemplateLocalizedContent',
     'MailLog',
     'MailGroup',
     'Signal',
