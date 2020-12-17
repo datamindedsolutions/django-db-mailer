@@ -77,8 +77,8 @@ class MailTemplateFileAdmin(admin.TabularInline):
 
 class MailTemplateAdmin(TranslationModelAdmin):
     list_display = (
-        'name', 'category', 'from_email', 'slug', 'is_admin', 'is_html',
-        'enable_log', 'is_active', 'num_of_retries', 'priority',
+        'name', 'category', 'from_email', 'slug', 'subject', 'is_admin',
+        'is_html', 'enable_log', 'is_active', 'num_of_retries', 'priority',
         'created', 'updated', 'id',
     )
     list_filter = (
