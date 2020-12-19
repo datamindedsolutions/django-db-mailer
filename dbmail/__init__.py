@@ -55,12 +55,10 @@ def db_sender(slug, recipient, *args, **kwargs):
 
         if send_at_date is not None and isinstance(send_at_date, datetime):
             kwargs.update({'eta': send_at_date})
-        if send_after is not None:
-            kwargs.update({'countdown': send_after})
         if expiry is not None:
             kwargs.update({'expires': expiry})
         if template.is_active:
-            return dbmail.tasks.db_sender.delay(*args, **kwargs)
+            return dbmail.tasks.db_sender.apply_async(args, kwargs, countdown=send_after)
     else:
         module = import_module(backend)
         if DEBUG is True:
