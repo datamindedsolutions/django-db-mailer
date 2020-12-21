@@ -373,7 +373,22 @@ class MailLogExceptionAdmin(admin.ModelAdmin):
 
 class MailTemplateLocalizedContentAdmin(admin.ModelAdmin):
     model = MailTemplateLocalizedContent
-    list_filter = ('is_outdated',)
+    list_filter = ('is_outdated', )
+    list_display = ('get_name', 'get_slug', 'lang', 'is_outdated')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('template')
+
+    def get_name(self, obj):
+        return obj.template.name
+
+    get_name.short_description = 'Template Name'
+
+    def get_slug(self, obj):
+        return obj.template.slug
+
+    get_slug.short_description = 'Template Slug'
 
 
 def admin_register(model):
