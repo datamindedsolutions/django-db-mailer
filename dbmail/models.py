@@ -256,7 +256,8 @@ class MailTemplate(models.Model):
         try:
             localized_content = mail_template.localizations.get(lang=lang)
         except MailTemplateLocalizedContent.DoesNotExist:
-            logger.error('Localized template not found for lang={}, slug={}'.format(lang, mail_template.slug))
+            if lang != 'en':
+                logger.error('Localized template not found for lang={}, slug={}'.format(lang, mail_template.slug))
             return
 
         setattr(mail_template, 'subject', localized_content.subject)
