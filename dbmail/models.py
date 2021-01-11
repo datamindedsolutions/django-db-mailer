@@ -20,7 +20,8 @@ from dbmail.defaults import (
     PRIORITY_STEPS, UPLOAD_TO, DEFAULT_CATEGORY, AUTH_USER_MODEL,
     DEFAULT_FROM_EMAIL, DEFAULT_PRIORITY, CACHE_TTL,
     BACKEND, _BACKEND, BACKENDS_MODEL_CHOICES, MODEL_HTMLFIELD,
-    MODEL_SUBSCRIPTION_DATA_FIELD, SORTED_BACKEND_CHOICES
+    MODEL_SUBSCRIPTION_DATA_FIELD, SORTED_BACKEND_CHOICES,
+    DEFAULT_LANG,
 )
 from dbmail.lang_choices import LANGUAGES as LANG_CHOICES
 
@@ -256,8 +257,7 @@ class MailTemplate(models.Model):
         try:
             localized_content = mail_template.localizations.get(lang=lang)
         except MailTemplateLocalizedContent.DoesNotExist:
-            if lang != 'en':
-                logger.error('Localized template not found for lang={}, slug={}'.format(lang, mail_template.slug))
+            logger.error('Localized template not found for lang={}, slug={}'.format(lang, mail_template.slug))
             return
 
         setattr(mail_template, 'subject', localized_content.subject)
@@ -283,7 +283,7 @@ class MailTemplate(models.Model):
         setattr(obj, 'files_list', files_list)
         setattr(obj, 'auth_credentials', auth_credentials)
 
-        if lang:
+        if lang and lang != DEFAULT_LANG:
             cls.localize_template(obj, lang)
 
         cache.set(cache_key, obj, timeout=CACHE_TTL, version=1)
