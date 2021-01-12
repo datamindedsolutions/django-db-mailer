@@ -144,3 +144,4 @@ APNS_GW_HOST = get_settings('DB_APNS_GW_HOST', 'gateway.push.apple.com')
 UPDATE_ON_DUPLICATE_REG_ID = get_settings('DB_UPDATE_ON_DUPLICATE_REG_ID', True)
 
 DEBUG = settings.DEBUG and get_settings('DB_MAILER_DEBUG', False)
+TEMPLATES_DEFAULT_LANG = get_settings('DB_MAILER_TEMPLATES_DEFAULT_LANG', 'en')

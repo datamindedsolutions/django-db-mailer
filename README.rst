@@ -50,6 +50,33 @@ Installation
 3. Sync database (``./manage.py migrate``).
 
 
+Development
+-----------
+
+1. Testing using Docker:
+
+.. code-block:: bash
+
+   $ docker build -t dbmail .
+   $ docker run -it -d -p 8000:8000 --name dbmail dbmail
+   $ docker exec -i -t dbmail /bin/bash
+
+After you get into the docker instance:
+
+.. code-block:: bash
+
+    pip3 install -r requirements/tests.txt
+    python3 demo/manage.py test dbmail
+
+2. Testing locally:
+
+.. code-block:: bash
+
+    pip3 install -r requirements/tests.txt
+    python3 setup.py install
+    python3 demo/manage.py test dbmail
+
+
 Mail API
 --------
 
