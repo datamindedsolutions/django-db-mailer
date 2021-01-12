@@ -21,7 +21,7 @@ from dbmail.defaults import (
     DEFAULT_FROM_EMAIL, DEFAULT_PRIORITY, CACHE_TTL,
     BACKEND, _BACKEND, BACKENDS_MODEL_CHOICES, MODEL_HTMLFIELD,
     MODEL_SUBSCRIPTION_DATA_FIELD, SORTED_BACKEND_CHOICES,
-    DEFAULT_LANG,
+    TEMPLATES_DEFAULT_LANG,
 )
 from dbmail.lang_choices import LANGUAGES as LANG_CHOICES
 
@@ -283,7 +283,7 @@ class MailTemplate(models.Model):
         setattr(obj, 'files_list', files_list)
         setattr(obj, 'auth_credentials', auth_credentials)
 
-        if lang and lang != DEFAULT_LANG:
+        if lang and lang != TEMPLATES_DEFAULT_LANG:
             cls.localize_template(obj, lang)
 
         cache.set(cache_key, obj, timeout=CACHE_TTL, version=1)
