@@ -64,3 +64,38 @@ class MailSenderBackendTestCase(BaseTestCase):
         self.assertEquals(len(mail.outbox), 3)
         self.assertEquals(mail.outbox[2].subject, "Welcome")
         self.assertEquals(mail.outbox[2].body, "Welcome to our site. We are glad to see you.")
+        # test send email with custom base_template and without lang
+        self._create_localized_template_with_base()
+        sender = Sender("welcome_with_base", "user1@example.com", backend=BACKEND["mail"])
+        self.assertEquals(sender.send(), "OK")
+        self.assertEquals(len(mail.outbox), 4)
+        self.assertEquals(mail.outbox[3].subject, "Welcome")
+        self.assertEquals(mail.outbox[3].body, "Base Template: Welcome to our site. We are glad to see you.")
+        # test send email with custom base_template and custom lang
+        localized_sender = Sender("welcome_with_base", "user1@example.com", lang="es", backend=BACKEND["mail"])
+        self.assertEquals(localized_sender.send(), "OK")
+        self.assertEquals(len(mail.outbox), 5)
+        self.assertEquals(mail.outbox[4].subject, "Bienvenido")
+        self.assertEquals(mail.outbox[4].body, "Base Template: Bienvenido a nuestro sitio. Nos alegra verte.")
+
+    def test_get_message_with_base(self):
+        base_template = self._create_base_template()
+        message = self.sender._get_message_with_base(base_template)
+        self.assertEquals(message, "Test Base Template")
+
+    def test_get_message_base(self):
+        # tests without passing base_template
+        message = self.sender._get_message()
+        self.assertEquals(message, "Welcome to our site. We are glad to see you.")
+        # tests passing base_template
+        base_template = self._create_base_template()
+        message = self.sender._get_message(base_template=base_template)
+        self.assertEquals(message, "Test Base Template")
+        # test calling when the template already has a base template
+        self._create_template_with_base()
+        sender_with_base = Sender("welcome_with_base", "user1@example.com", lang="en", backend=BACKEND["mail"])
+        message = sender_with_base._get_message()
+        self.assertEquals(message, "Welcome to our site. We are glad to see you.")
+        # test calling it with a base_template when the template already has a base
+        message = sender_with_base._get_message(base_template=base_template)
+        self.assertEquals(message, "Test Base Template")
