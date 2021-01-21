@@ -50,7 +50,8 @@ class Sender(object):
         self._context = self._get_context(args)
 
         self._subject = self._get_subject()
-        self._message = self._get_message()
+        base_template = kwargs.pop('base_template', self._template.base)
+        self._message = self._get_message(base_template=base_template)
         self._files = kwargs.pop('files', [])
         self._kwargs = kwargs
         self._num = 1
@@ -129,11 +130,11 @@ class Sender(object):
         return self._render_template(
             self._get_str_by_language('subject'), self._context)
 
-    def _get_message_with_base(self):
+    def _get_message_with_base(self, base_template):
         self._context['content'] = self._render_template(
             self._get_str_by_language('message'), self._context)
         return self._render_template(
-            self._get_str_by_language('message', self._template.base),
+            self._get_str_by_language('message', base_template),
             self._context
         )
 
@@ -141,9 +142,9 @@ class Sender(object):
         return self._render_template(
             self._get_str_by_language('message'), self._context)
 
-    def _get_message(self):
-        if self._template.base:
-            return self._get_message_with_base()
+    def _get_message(self, base_template=None):
+        if base_template:
+            return self._get_message_with_base(base_template)
         return self._get_standard_message()
 
     def _get_msg_with_track(self):
